@@ -4,9 +4,10 @@ addEventListener('fetch', event => {
 
 async function handleRequest(request) {
     const url = "https://cfw-takehome.developers.workers.dev/api/variants";
-
+    var re_urls = [ ]
+    
     return fetch(url, {
-        method: 'get',
+        method: 'GET',
         }).then(response => {
             if (response.status === 200) {
                 return response.json();
@@ -17,15 +18,16 @@ async function handleRequest(request) {
             }
         })
         .then(response => {
-            urls = response["variants"];
-            console.debug(response["variants"]);
-            return response["variants"];
+            re_urls.push(response["variants"][0]);
+            re_urls.push(response["variants"][1]);
+            console.debug(re_urls);
+            return response;
         })
         .then(function(response) {
             if(Math.random() < 0.5) {
-                return fetch(urls[0]);
+                return fetch(re_urls[0]);
             } else {
-                return fetch(urls[1]);
+                return fetch(re_urls[1]);
             }
         })
         .then(response => {
