@@ -32,7 +32,7 @@ async function handleRequest(request) {
         })
         .then(response => {
             console.debug(response);
-            return new Response(response)            
+            return new Response(response.body)            
         })
         .catch(error => {
             console.error(error);
