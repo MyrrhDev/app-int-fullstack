@@ -21,10 +21,8 @@ const strings = {
     },
 }
 
-
 class ElementHandler {
   constructor(variant) {
-    console.debug(variant)
     this.variant = variant
   }
 
@@ -55,6 +53,8 @@ async function handleRequest(request) {
     
     var chosenVariant = [ ]
     
+    const cookie = request.headers.get('cookie')
+    
     return fetch(url, {
         method: 'GET',
         }).then(response => {
@@ -73,23 +73,50 @@ async function handleRequest(request) {
             return response;
         })
         .then(async function(response) {
-            if(Math.random() < 0.5) {
-                chosenVariant = strings['var1']
-                var thisWriter = createRewriter(chosenVariant)
-                const res = await fetch(re_urls[0])
-                return thisWriter.transform(res)
-            } else {
-                chosenVariant = strings['var2']
+            var variantOne = createRewriter(strings['var1']).transform(await fetch(re_urls[0]))
+            var variantTwo = createRewriter(strings['var2']).transform(await fetch(re_urls[1]))
+            
+            if(cookie && cookie.includes(`which=var1`)) {
+//                 console.debug("cookies 1");
+//                 chosenVariant = strings['var1']
+//                 writer = createRewriter(chosenVariant)
+//                 const res = await fetch(re_urls[0])
+//                 return writer.transform(res)
                 
-                var thatWriter = createRewriter(chosenVariant)
-                const res = await fetch(re_urls[1])
-                return thatWriter.transform(res)
+//                 var variantOne = createRewriter(strings['var1']).transform(await fetch(re_urls[0]))
+                return variantOne
+            } else if (cookie && cookie.includes(`which=var2`)) {
+//                 console.debug("cookies 2");
+//                 chosenVariant = strings['var2']                
+//                 writer = createRewriter(chosenVariant)
+//                 const res = await fetch(re_urls[1])
+//                 return writer.transform(res)
+                return variantTwo
+            } else {
+                console.debug(" no cookies");
+                if(Math.random() < 0.5) {
+//                     chosenVariant = strings['var1']
+//                     writer = createRewriter(chosenVariant)
+//                     const res = await fetch(re_urls[0])
+//                     response = writer.transform(res)
+                    response = variantOne
+                    const cookies_send = {
+                        headers: { 'Set-Cookie': `which=var1; Expires=Wed, 20 Jun 2035 07:38:00 GMT;` },
+                    }
+                    return new Response(response.body,cookies_send)
+                } else {
+//                     chosenVariant = strings['var2']                
+//                     writer = createRewriter(chosenVariant)
+//                     const res = await fetch(re_urls[1])
+//                     response = writer.transform(res)
+                    response = variantTwo
+                    const cookies_send = {
+                        headers: { 'Set-Cookie': `which=var2; Expires=Wed, 20 Jun 2035 07:38:00 GMT;` },
+                    }
+                    return new Response(response.body,cookies_send)                    
+                }
             }
         })
-//         .then(response => {
-//             console.debug(response);
-//             return new Response(response.body)            
-//         })
         .catch(error => {
             console.error(error);
         });
