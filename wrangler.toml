@@ -1,6 +1,6 @@
 name = "mpv-worker"
 type = "javascript"
-account_id = ""
+account_id = "24016176a58b89024b7c587e9ff75f96"
 workers_dev = true
 route = ""
 zone_id = ""
