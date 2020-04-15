@@ -2,9 +2,6 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
 
-// // Math.random() < 0.5;
-
-
 async function handleRequest(request) {
     const url = "https://cfw-takehome.developers.workers.dev/api/variants";
 
@@ -22,9 +19,7 @@ async function handleRequest(request) {
         .then(response => {
             urls = response["variants"];
             console.debug(response["variants"]);
-//             return new Response(response)
             return response["variants"];
-            
         })
         .then(function(response) {
             if(Math.random() < 0.5) {
