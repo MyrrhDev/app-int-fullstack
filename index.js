@@ -21,13 +21,14 @@ const strings = {
     },
 }
 
+
 class ElementHandler {
   constructor(variant) {
+    console.debug(variant)
     this.variant = variant
   }
 
   element(element) {
-      console.debug(element.attributes);      
       if(element.tagName == 'a') {
           element.setInnerContent(this.variant[element.tagName])
           element.setAttribute('href', this.variant['url'])
@@ -37,11 +38,22 @@ class ElementHandler {
   }
 }
 
+function createRewriter(chosenVariant) {
+    var rewriter = new HTMLRewriter()
+        .on('title', new ElementHandler(chosenVariant))
+        .on('h1#title', new ElementHandler(chosenVariant))
+        .on('p#description', new ElementHandler(chosenVariant))
+        .on('a#url', new ElementHandler(chosenVariant))
+        .on('a', new ElementHandler(chosenVariant))
+        
+    return rewriter
+}
 
 async function handleRequest(request) {
     const url = "https://cfw-takehome.developers.workers.dev/api/variants";
     var re_urls = [ ]
-    var variant = [ ]
+    
+    var chosenVariant = [ ]
     
     return fetch(url, {
         method: 'GET',
@@ -62,25 +74,16 @@ async function handleRequest(request) {
         })
         .then(async function(response) {
             if(Math.random() < 0.5) {
-                console.debug(strings['var1']);
-                var rewriter = new HTMLRewriter()
-                .on('title', new ElementHandler(strings['var1']))
-                .on('h1#title', new ElementHandler(strings['var1']))
-                .on('p#description', new ElementHandler(strings['var1']))
-                .on('a#url', new ElementHandler(strings['var1']))
-                .on('a', new ElementHandler(strings['var1']))
+                chosenVariant = strings['var1']
+                var thisWriter = createRewriter(chosenVariant)
                 const res = await fetch(re_urls[0])
-                return rewriter.transform(res)
+                return thisWriter.transform(res)
             } else {
-//                 console.debug(strings['var1']);
-                var rewriter = new HTMLRewriter()
-                .on('title', new ElementHandler(strings['var2']))
-                .on('h1#title', new ElementHandler(strings['var2']))
-                .on('p#description', new ElementHandler(strings['var2']))
-                .on('a#url', new ElementHandler(strings['var2']))
-                .on('a', new ElementHandler(strings['var2']))
+                chosenVariant = strings['var2']
+                
+                var thatWriter = createRewriter(chosenVariant)
                 const res = await fetch(re_urls[1])
-                return rewriter.transform(res)
+                return thatWriter.transform(res)
             }
         })
 //         .then(response => {
